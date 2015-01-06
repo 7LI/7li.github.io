@@ -4,7 +4,7 @@ A jQuery plugin for dropdown menus that can differentiate between a user trying 
  
 [Try a demo.](http://7li.github.io/jquery/jQuery-menu/index.html)
 
-<img src="http://7li.github.io/jquery/jQuery-menu/img/demo.gif" />
+<img src="img/demo.gif" />
 
 ## Licence
 

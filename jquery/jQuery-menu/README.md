@@ -4,4 +4,8 @@ A jQuery plugin for dropdown menus that can differentiate between a user trying 
  
 [Try a demo.](http://7li.github.io/jquery/jQuery-menu/index.html)
 
-![Screenshot](http://7li.github.io/jquery/jQuery-menu/img/demo.gif)
+<img src="http://7li.github.io/jquery/jQuery-menu/img/demo.gif" />
+
+## Licence
+
+[MIT](http://en.wikipedia.org/wiki/MIT_License).

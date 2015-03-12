@@ -110,7 +110,7 @@ define(['../src/swipe.js'], function(Swipe) {
         var oldOffset, oldIdex;
         swipe.slideTo(random, function(){
           oldOffset = getTransitionOffset(wrap);
-          oldIdex = swipe.getCurrentIndex();
+          oldIdex = swipe.getIndex();
         }, true);
         
         swipe.slideTo(random, function() {

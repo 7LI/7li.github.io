@@ -1,3 +1,12 @@
+/*
+ * Swipe 1.0.0
+ *
+ * Liu Yanzhi
+ * 702368372atqqcom
+ * Copyright 2015, MIT License
+ * 
+ * Thanks to: https://github.com/thebird
+ */
 define(function() {
   function Swipe(container, option) {
     this.container = container;
@@ -9,7 +18,7 @@ define(function() {
     if (!option) option = {};
     this.option = option;
     this.speed = option.speed || 300;
-    this.threshould = option.threshould || 160;
+    this.threshould = option.threshould || 100;
     this.auto = option.auto || 2000;
     this.index = 0;
     this.offset = 0;
@@ -34,7 +43,7 @@ define(function() {
 
     // Set wrap
     this.wrap.style.position = 'relative';
-    this.wrap.style.overflow = 'visible';
+    this.wrap.style.overflow = '';
     this.wrap.style.height = 'auto';
     this.wrap.style.width = '999999999999999px';
 
@@ -79,12 +88,15 @@ define(function() {
 
     // Not sliding, so enforce slide
     if (index == this.index) {
+      console.log('t');
       // Current index, no need to transition, immediately trigger callback
       callback && callback();
+      this.nav && this.setNav();
       this.dequeue();
       return;
     }
 
+    console.log('index:' + index);
     this.sliding = true;
     this.callback = callback;
 
@@ -193,10 +205,12 @@ define(function() {
               that.container.removeEventListener('touchend', that.events);
               that.autoplay(that.option.auto !== 0);
               break;
-            case 'transitionend': 
+            case 'transitionend':
+              if (e.propertyName != '-webkit-transform' && 
+                  e.propertyName != 'transform') return;
+
               that.sliding = false;
               that.nav && that.setNav(); // Set nav
-
               that.callback && that.callback();
               // Enforce the next slide in queue
               that.dequeue();
@@ -208,7 +222,7 @@ define(function() {
          }
       }
     }
-    this.container.addEventListener('transitionend', this.events);
+    this.container.addEventListener('transitionend', this.events, false);
     this.container.addEventListener('touchstart', this.events);
     window.addEventListener('resize', this.events);
   }

@@ -17,7 +17,6 @@ define(function() {
     this.wrap = this.container.children[0];
     this.slides = this.wrap.children;
     this.length = this.slides.length;
-    this.width = this.container.offsetWidth;
 
     if (!option) option = {};
     this.option = option;
@@ -41,6 +40,8 @@ define(function() {
   }
 
   Swipe.prototype.setup = function() {
+    this.width = this.container.offsetWidth;
+
     // Set container
     this.container.style.overflow = 'hidden';
     this.container.style.position = 'relative';
@@ -49,7 +50,8 @@ define(function() {
     this.wrap.style.position = 'relative';
     this.wrap.style.overflow = 'visible';
     this.wrap.style.height = 'auto';
-    this.wrap.style.width = '99999999px';
+    // this.wrap.style.width = '99999999px';
+    this.wrap.style.webkitTransform = '';
 
     // Set slides   
     for(var i = 0; i < this.length; i++) {
@@ -57,8 +59,9 @@ define(function() {
       slide.style.position = 'relative';
       slide.style.float = 'left';
       slide.style.height = 'auto';
-      this.slides[i].style.width = this.width + 'px';
-      this.slides[i].offset = i * this.width;
+      slide.style.width = this.width + 'px';
+      slide.offset = i * this.width;
+      slide.style.webkitTransform = '';
     }
   }
 
@@ -99,7 +102,6 @@ define(function() {
       return;
     }
 
-    console.log('index:' + index);
     this.sliding = true;
     this.callback = callback;
 
@@ -175,7 +177,7 @@ define(function() {
 
   Swipe.prototype.bind = function() {
     var that = this;
-    var start, delta = {x: 0, y: 0};
+    var start, delta;
     this.events = {
       handleEvent: function(e) {
         switch (e.type) {
@@ -185,6 +187,7 @@ define(function() {
                 x: touches.pageX,
                 y: touches.pageY,
               };
+              delta = {x: 0, y: 0};
               that.container.addEventListener('touchmove', that.events);
               that.wrap.addEventListener('touchend', that.events);
               that.autoplay(false);
@@ -203,8 +206,7 @@ define(function() {
               that.attempSlide(delta);
               break;
             case 'touchend': 
-
-               if (Math.abs(delta.x) > that.threshould) {
+              if (Math.abs(delta.x) > that.threshould) {
                 if (delta.x > 0) {
                   that.prev();
                 } else {
@@ -229,8 +231,7 @@ define(function() {
               that.dequeue();
               break;
             case 'resize':
-              that.width = that.container.offsetWidth;
-              that.setup();
+              that.resize();
             break;
          }
       }
@@ -239,6 +240,16 @@ define(function() {
     this.container.addEventListener('webkitTransitionEnd', this.events, false);
     this.container.addEventListener('touchstart', this.events);
     window.addEventListener('resize', this.events);
+  }
+
+  Swipe.prototype.resize = function() {
+    this.setup();
+    this.relocateSlides('right');
+    // Relocate wrap
+    this.offset =  -this.slides[this.index].offset;
+    var style = this.wrap.style;
+    style.webkitTransitionDuration = '0ms';
+    style.webkitTransform = 'translate3D(' + this.offset + 'px, 0px, 0px)';
   }
 
   Swipe.prototype.dequeue = function() {

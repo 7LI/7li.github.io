@@ -26,7 +26,7 @@ modal({
   close: function() {
     console.log('modal closed.');
   },
-  scoll: false
+  scroll: false
 })
 
 ```

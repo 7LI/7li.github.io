@@ -4,7 +4,7 @@
 
   @author <702368372atqqcom> lyz
 
-  @options
+  @option
     - title   {String}   Modal title html
     - content {String}   Modal content html
     - close   {Function} Callback when modal is closed

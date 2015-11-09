@@ -8,17 +8,20 @@
  * Thanks to: https://github.com/thebird
  */
 define(function() {
+  var TEST = document.getElementById('test');
+  function test(str) {
+    TEST.innerHTML = str;
+  }
   function Swipe(container, option) {
     this.container = container;
     this.wrap = this.container.children[0];
     this.slides = this.wrap.children;
     this.length = this.slides.length;
-    this.width = this.container.offsetWidth;
 
     if (!option) option = {};
     this.option = option;
     this.speed = option.speed || 300;
-    this.threshould = option.threshould || 100;
+    this.threshould = option.threshould || 90;
     this.auto = option.auto || 2000;
     this.index = 0;
     this.offset = 0;
@@ -37,15 +40,18 @@ define(function() {
   }
 
   Swipe.prototype.setup = function() {
+    this.width = this.container.offsetWidth;
+
     // Set container
     this.container.style.overflow = 'hidden';
     this.container.style.position = 'relative';
 
     // Set wrap
     this.wrap.style.position = 'relative';
-    this.wrap.style.overflow = '';
+    this.wrap.style.overflow = 'visible';
     this.wrap.style.height = 'auto';
-    this.wrap.style.width = '999999999999999px';
+    // this.wrap.style.width = '99999999px';
+    this.wrap.style.webkitTransform = '';
 
     // Set slides   
     for(var i = 0; i < this.length; i++) {
@@ -53,8 +59,9 @@ define(function() {
       slide.style.position = 'relative';
       slide.style.float = 'left';
       slide.style.height = 'auto';
-      this.slides[i].style.width = this.width + 'px';
-      this.slides[i].offset = i * this.width;
+      slide.style.width = this.width + 'px';
+      slide.offset = i * this.width;
+      slide.style.webkitTransform = '';
     }
   }
 
@@ -88,7 +95,6 @@ define(function() {
 
     // Not sliding, so enforce slide
     if (index == this.index) {
-      console.log('t');
       // Current index, no need to transition, immediately trigger callback
       callback && callback();
       this.nav && this.setNav();
@@ -96,12 +102,25 @@ define(function() {
       return;
     }
 
-    console.log('index:' + index);
     this.sliding = true;
     this.callback = callback;
 
     var offset;
     // Relocate slides
+    this.relocateSlides(direction);
+    // Relocate wrap
+    offset =  this.slides[this.index].offset - this.slides[index].offset;
+    offset += this.offset;
+
+    this.offset = offset;
+    this.index = index;
+
+    var style = this.wrap.style;
+    style.webkitTransitionDuration = this.speed + 'ms';
+    style.webkitTransform = 'translate3D(' + offset + 'px, 0px, 0px)';
+  }
+
+  Swipe.prototype.relocateSlides = function(direction) {
     var currentSlide = this.slides[this.index];
     for (var i = 0; i < this.length; i++) {
       if (i == this.index) continue;
@@ -122,18 +141,7 @@ define(function() {
           slide.style.webkitTransform = 'translate3D(' + calculateOffset + 'px, 0px, 0px)';
         }
       }
-      
     }
-    // Relocate wrap
-    offset =  this.slides[this.index].offset - this.slides[index].offset;
-    offset += this.offset;
-
-    this.offset = offset;
-    this.index = index;
-
-    var style = this.wrap.style;
-    style.webkitTransitionDuration = this.speed + 'ms';
-    style.webkitTransform = 'translate3D(' + offset + 'px, 0px, 0px)';
   }
 
   Swipe.prototype.prev = function(callback, queue) {
@@ -169,7 +177,7 @@ define(function() {
 
   Swipe.prototype.bind = function() {
     var that = this;
-    var start, delta = {x: 0, y: 0};
+    var start, delta;
     this.events = {
       handleEvent: function(e) {
         switch (e.type) {
@@ -179,20 +187,26 @@ define(function() {
                 x: touches.pageX,
                 y: touches.pageY,
               };
+              delta = {x: 0, y: 0};
               that.container.addEventListener('touchmove', that.events);
-              that.container.addEventListener('touchend', that.events);
+              that.wrap.addEventListener('touchend', that.events);
               that.autoplay(false);
               break;
             case 'touchmove':
+              // prevent native scrolling
+              e.preventDefault();
+
               var touches = e.touches[0];
               delta = {
                 x: touches.pageX - start.x,
                 y: touches.pageY - start.y
               }
+              var direction = delta.x > 0 ? 'left' : 'right';
+              that.relocateSlides(direction);
               that.attempSlide(delta);
               break;
             case 'touchend': 
-               if (Math.abs(delta.x) > that.threshould) {
+              if (Math.abs(delta.x) > that.threshould) {
                 if (delta.x > 0) {
                   that.prev();
                 } else {
@@ -206,6 +220,7 @@ define(function() {
               that.autoplay(that.option.auto !== 0);
               break;
             case 'transitionend':
+            case 'webkitTransitionEnd':
               if (e.propertyName != '-webkit-transform' && 
                   e.propertyName != 'transform') return;
 
@@ -216,15 +231,25 @@ define(function() {
               that.dequeue();
               break;
             case 'resize':
-              that.width = that.container.offsetWidth;
-              that.setup();
+              that.resize();
             break;
          }
       }
     }
     this.container.addEventListener('transitionend', this.events, false);
+    this.container.addEventListener('webkitTransitionEnd', this.events, false);
     this.container.addEventListener('touchstart', this.events);
     window.addEventListener('resize', this.events);
+  }
+
+  Swipe.prototype.resize = function() {
+    this.setup();
+    this.relocateSlides('right');
+    // Relocate wrap
+    this.offset =  -this.slides[this.index].offset;
+    var style = this.wrap.style;
+    style.webkitTransitionDuration = '0ms';
+    style.webkitTransform = 'translate3D(' + this.offset + 'px, 0px, 0px)';
   }
 
   Swipe.prototype.dequeue = function() {

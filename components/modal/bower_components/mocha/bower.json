@@ -43,15 +43,5 @@
     "tdd",
     "tap"
   ],
-  "license": "MIT",
-  "_release": "2.1.0",
-  "_resolution": {
-    "type": "version",
-    "tag": "2.1.0",
-    "commit": "5cabbb9f90f85f178aa61d21ddc8abce010ac8e8"
-  },
-  "_source": "git://github.com/mochajs/mocha.git",
-  "_target": "~2.1.0",
-  "_originalSource": "mocha",
-  "_direct": true
+  "license": "MIT"
 }

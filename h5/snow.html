@@ -5,9 +5,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="author" content="lyz"/>
 	<link rel="stylesheet" href="css/style.css" class="css"/>
+  <script src="http://cdn.bootcss.com/zepto/1.0rc1/zepto.min.js"></script>
 </head> 
 <body >
-<audio id="music">
+<audio id="music" loop="loop">
   <source src="music/vk.mp3">
   <source src="music/vk.ogg">
 </audio>
@@ -102,11 +103,11 @@
     		case 'fnx':
     			random = 27 + Math.random () * 100;
     			ret = function (x, y) {
-    				return x +  0.3 * Math.sin (y / random);
+    				return x +  0.1 * Math.sin (y / random) * 2.1;
     			};
     			break;
     		case 'fny':
-    			random = 0.4 + Math.random () * 0.6
+    			random = 0.4 + Math.random () * 0.3
     			ret = function (x, y) {
     				return y + random;
     			};
@@ -127,7 +128,7 @@
 	    cxt = canvas.getContext ('2d');
 	    // Create snow objects
 	    var snowList = new SnowList();
-	    for(var i = 0; i < 200; i++){
+	    for(var i = 0; i < 300; i++){
 	    	var snow, randomX, randomY, randomR, randomFnx, randomFny;
 	    	randomX = getRandom ('x');
 	    	randomY = getRandom ('y');
@@ -160,7 +161,6 @@
     // Let it snow O(∩_∩)0
     startSnow ();
 </script>
-<script src="http://cdn.bootcss.com/zepto/1.0rc1/zepto.min.js"></script>
 <script type="text/javascript">
   function fakeClick(fn) {
     var $a = $('<a href="#" id="fakeClick"></a>');

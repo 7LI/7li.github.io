@@ -6,7 +6,11 @@
 	<meta name="author" content="lyz"/>
 	<link rel="stylesheet" href="css/style.css" class="css"/>
 </head> 
-<body > 
+<body >
+<audio id="music">
+  <source src="music/vk.mp3">
+  <source src="music/vk.ogg">
+</audio>
 <script type="text/javascript">
 	// Cross-browser-compliant
     requestAnimationFrame = window.requestAnimationFrame ||
@@ -156,7 +160,6 @@
     // Let it snow O(∩_∩)0
     startSnow ();
 </script>
-<audio src="music/vk.ogg" controls="controls" id="music"></audio>
 <script src="http://cdn.bootcss.com/zepto/1.0rc1/zepto.min.js"></script>
 <script type="text/javascript">
   function fakeClick(fn) {

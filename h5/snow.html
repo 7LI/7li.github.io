@@ -13,22 +13,6 @@
   <source src="music/vk.ogg">
 </audio>
 <script type="text/javascript">
-  function inRange(snow) {
-    var x = snow.x,
-        y = snow.y;
-    var rect = {
-      left: 200,
-      right: 300,
-      top: 200,
-      bottom: 300
-    }
-    if (x > rect.left && x < rect.right &&
-        y > rect.top && y < rect.bottom) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 	// Cross-browser-compliant
     requestAnimationFrame = window.requestAnimationFrame ||
                             window.mozRequestAnimationFrame ||
@@ -63,20 +47,15 @@
     	}
 
       var snow = this;
-      if (inRange(snow)) {
-        var _snow = {};
-        _snow.x = parseInt(_snow.x);
-        _snow.y = parseInt(_snow.y);
-        var key = JSON.stringify(_snow);
-        if (!(key in map)) {
-//          _snow.y = parseInt(_snow)
-//          _snow = $.extend({}, )
-//          cover.push(_snow);
-//          map[key] = 1;
-//          console.log(_snow);
-        }
+      var _snow = $.extend({}, snow);
+      _snow.x = parseInt(_snow.x);
+      _snow.y = parseInt(_snow.y);
+      _snow.r = parseInt(_snow.r);
+      var hold = covers.tryToHold(_snow);
+      if (hold) {
         snow.restart();
       }
+
     }
 
   Snow.prototype.restart = function() {
@@ -120,6 +99,106 @@
     return this.list.length;
   }
 
+  function CoverSnowList(point) {
+    this.list = [];
+    this.min = point.min;
+    this.max = point.max;
+    this.cur = this.max;
+  }
+
+  CoverSnowList.prototype._canHold = function(snow) {
+    return snow.y <= (this.cur+1) && snow.y >= this.cur;
+  }
+
+  CoverSnowList.prototype.tryToHold = function (snow) {
+    var hold;
+    if (!this.isFull() && this._canHold(snow)) {
+      this.list.push(snow);
+      this.cur -= snow.r * 2;
+      hold = true;
+    } else {
+      hold = false;
+    }
+    return hold;
+  }
+
+  CoverSnowList.prototype.isFull = function() {
+    return this.cur <= this.min;
+  }
+
+  CoverSnowList.prototype.draw = SnowList.prototype.draw;
+
+  function Cover(left, interval, points) {
+    var i = points.length;
+    if (!i) return;
+
+    this.list = {};
+
+    while (i--) {
+      var point = points[i];
+      this.list[left] = new CoverSnowList(point);
+      left += interval;
+    }
+  }
+
+  Cover.prototype._isFull = function() {
+    if (this.full) {
+      return true;
+    }
+
+    var allFull = true;
+    for(var x in this.list) {
+      var coverSnowList = this.list[x];
+      if (!coverSnowList.isFull()) {
+        allFull = false;
+      }
+    }
+
+    if (allFull) {
+      this.full = true;
+    }
+    return allFull;
+  }
+
+  Cover.prototype.tryToHold = function(snow) {
+//    console.log(snow.x in this.list)
+    if (!(snow.x in this.list) ||
+        this._isFull()
+    ) {
+      return
+    }
+    var hold = this.list[snow.x].tryToHold(snow);
+    return hold;
+  }
+
+  Cover.prototype.draw = function(ctx) {
+    for (var x in this.list) {
+      var coverSnowList = this.list[x];
+      coverSnowList.draw(ctx);
+    }
+  }
+
+  function Covers() {
+    this.list = [];
+  }
+
+  Covers.prototype.tryToHold = function(snow) {
+    var hold = false;
+    this.list.forEach(function(cover) {
+      if (cover.tryToHold(snow)) {
+        hold = true;
+      }
+    })
+    return hold;
+  }
+
+  Covers.prototype.draw = function(ctx) {
+    this.list.forEach(function(cover) {
+      cover.draw(ctx);
+    })
+  }
+  Covers.prototype.push = SnowList.prototype.push;
+
   /**
    * Generate random x-pos, y-pos or fn functions
    * @param  {string} option x|y|fnx|fny
@@ -140,11 +219,12 @@
       case 'fnx':
         random = 27 + Math.random () * 100;
         ret = function (x, y) {
-          return x +  0.1 * Math.sin (y / random) * 2.1;
+          return x +  0.1 * Math.sin (y / random) * 8.1;
         };
         break;
       case 'fny':
-        random = 0.4 + Math.random () * 0.3;
+//        random = 0.4 + Math.random () * 20.3;
+        random = 0.4 + Math.random () * 4.3;
         ret = function (x, y) {
           return y + random;
         };
@@ -153,8 +233,72 @@
     return ret;
   }
 
-  var cover = new SnowList();
-  var map = {};
+  function getCircle(x, y, r) {
+    var points = [];
+    for(var i = r; i >= 0; i--) {
+      var min = Math.ceil(r - Math.sqrt((Math.pow(r, 2) - Math.pow(i, 2))));
+      var max = 2 * r - min;
+      points.push({ min: min, max: max});
+    }
+    points = [].concat.apply(points, points.slice(0, points.length - 1).reverse());
+
+    points.forEach(function(point) {
+      point.min += y;
+      point.max += y;
+    })
+    return points;
+  }
+
+  function getRect(x, y, w, h, rt) {
+    var points = [];
+    var big;
+    if (rt && rt > 90) {
+      rt = 180 - rt;
+      big = true;
+    }
+    var radian = rt / 180 * Math.PI;
+    if (rt) {
+      for(var i = Math.ceil(Math.cos(radian)) * w; i >= 0; i--) {
+        var min = - Math.ceil(Math.tan(radian) * i);
+        var max = min + Math.ceil(h / Math.sin(radian));
+        var point;
+        point = {
+          min: min,
+          max: max
+        }
+        points.push(point);
+      }
+    } else {
+      for(var i = w; i >= 0; i--) {
+        var min = 0;
+        var max = h;
+        var point;
+        point = {
+          min: min,
+          max: max
+        }
+        points.push(point);
+      }
+    }
+
+
+    if (big) {
+      points = points.reverse();
+    }
+
+    points.forEach(function(point) {
+      point.min += y;
+      point.max += y;
+    })
+    return points;
+  }
+
+  var covers = new Covers();
+  covers.push(new Cover(0, 1, getCircle(null, 20, 30)));
+  covers.push(new Cover(60, 1, getRect(null, 160, 40, 5, 45)));
+  covers.push(new Cover(100, 1, getRect(null, 166, 40, 5, 135)));
+  covers.push(new Cover(70, 1, getRect(null, 150, 60, 40)));
+  covers.push(new Cover(50, 1, getRect(null, 190, 90, 40)));
   // Start snow
   function startSnow () {
     // Create canvas
@@ -183,10 +327,10 @@
     }
     // Update snow position data, and redraw them in each frame
     requestAnimationFrame (function(){
-      cxt.clearRect (0, 0, canvas.width, canvas.height);
-      snowList.update ();
-      snowList.draw (cxt);
-      cover.draw(cxt);
+      cxt.clearRect(0, 0, canvas.width, canvas.height);
+      snowList.update();
+      snowList.draw(cxt);
+      covers.draw(cxt);
       requestAnimationFrame (arguments.callee);
     })
   }

@@ -1,32 +1,46 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
-<html xmlns="http://www.w3.org/1999/xhtml">  
-<head>  
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
-<meta name="author" content="Nancle from CAU CS101" />  
-<title>jQuery图片渐变切换</title>  
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>  
-<style type="text/css">  
-ul{position:relative;}  
-ul li{display:block; position:absolute; left:0; top:0}  
-img{width:480px; height:320px; border:5px solid #ccc}  
-</style>  
-</head>  
-<body>  
-<ul>  
-    <li><img src="http://down.fpwap.com/UploadFiles/sjbz/2010/6/2010615222757.jpg" /></li>  
-    <li><img src="http://img5.cache.netease.com/m/app/201108/31/953DDLJL.jpg" /></li>  
-    <li><img src="http://i-imgp.fetionpic.com/fphoto/photo1/M00/41/83/rBUyIVHfdvC9LAM6AAC873sDEoo981.jpg" /></li>  
-    <li><img src="http://img.bimg.126.net/photo/L0py2I9-0qIAd_Keov5GhQ==/1710804908448128265.jpg" /></li>  
-</ul>  
-</div>  
-<script>  
-var switchSpeed = 1000;         //图片切换时间  
-var fadeSpeed = 1500;           //渐变时间  
-setInterval(function(){  
-    $('img').last().fadeOut(fadeSpeed, function(){  
-        $(this).show().parent().prependTo($('ul'));  
-    });  
-}, switchSpeed);  
-</script>  
-</body>  
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta name="author" content="Nancle from CAU CS101"/>
+	<title>jQuery图片渐变切换</title>
+	<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+	<style type="text/css">
+		ul {
+			position: relative;
+		}
+
+		ul li {
+			display: block;
+			position: absolute;
+			left: 0;
+			top: 0
+		}
+
+		img {
+			width: 480px;
+			height: 320px;
+			border: 2px solid #ccc
+		}
+	</style>
+</head>
+<body>
+	<ul>
+		<li><img src="img/1.jpg"/></li>
+		<li><img src="img/2.jpg"/></li>
+		<li><img src="img/3.jpg"/></li>
+		<li><img src="img/4.jpg"/></li>
+	</ul>
+	</div>
+	<script>
+	  var switchSpeed = 1000;         //图片切换时间
+	  var fadeSpeed = 1500;           //渐变时间
+	  setInterval(function () {
+		  $('img').last().fadeOut(fadeSpeed, function () {
+			  $(this).show().parent().prependTo($('ul'));
+		  });
+	  }, switchSpeed);
+	</script>
+</body>
 </html> 

@@ -5,7 +5,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="author" content="lyz"/>
 	<link rel="stylesheet" href="css/style.css" class="css"/>
-  <script src="http://cdn.bootcss.com/zepto/1.0rc1/zepto.min.js"></script>
+  	<script src="http://cdn.bootcss.com/zepto/1.0rc1/zepto.min.js"></script>
+	<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+
 </head> 
 <body >
 <audio id="music" loop="loop">
@@ -375,6 +377,22 @@
     fakeClick(function() {
       video.play();
     });
+
+  function autoPlayVideo(){
+	  wx.config({
+		  debug:false,
+		  appId:"",
+		  timestamp:1,
+		  nonceStr:"",
+		  signature:"",
+		  jsApiList:[]
+	  });
+	  wx.ready(function(){
+		  var autoplayVideo=document.getElementById("music");
+		  autoplayVideo.play()
+	  })
+  };
+  autoPlayVideo();
   });
 
 </script>
